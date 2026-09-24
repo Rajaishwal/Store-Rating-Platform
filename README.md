@@ -100,6 +100,7 @@ All routes are prefixed with `/api`. Authenticated routes expect an
 | `POST`  | `/admin/users`             | `ADMIN`  | create a user of any role                    |
 | `GET`   | `/admin/stores`            | `ADMIN`  | store listing with filters and sorting       |
 | `POST`  | `/admin/stores`            | `ADMIN`  | register a store, optionally with an owner   |
+| `GET`   | `/owner/dashboard`         | `OWNER`  | own store, its average rating, and its raters |
 
 `GET /stores` accepts `search`, `sortBy` (`name`, `address`, `rating`), `order`
 (`asc`, `desc`), `page` and `limit`. `search` matches store name or address.
@@ -108,6 +109,9 @@ All routes are prefixed with `/api`. Authenticated routes expect an
 `name`, `email`, `address`, `role` or `createdAt`. `GET /admin/stores` filters on
 `name`, `email` and `address`, and sorts by `name`, `email`, `address` or
 `rating`. Both paginate with `page` and `limit`.
+
+`GET /owner/dashboard` sorts its rater list by `name`, `email`, `rating` or
+`ratedAt`, and paginates with `page` and `limit`.
 
 Sortable columns are validated against a fixed whitelist, so a column name from
 a query string never reaches the database as SQL.
@@ -127,6 +131,7 @@ Run from `backend/`:
 | `npm run test:auth`   | 20 authentication checks                          |
 | `npm run test:stores` | 31 store listing and rating checks                |
 | `npm run test:admin`  | 51 administrator checks                           |
+| `npm run test:owner`  | 23 store owner checks                             |
 
 ## Validation rules
 
@@ -162,6 +167,10 @@ user; only an authenticated administrator can assign a role.
 **Unrated stores report `null`, not `0`.** "No ratings yet" and "rated zero" are
 different facts, and zero is not a valid rating.
 
+**A store owner without a store is a normal state, not an error.** An owner
+account can be created before a store is assigned to it, so the dashboard
+returns an empty result with an explanation rather than a 404.
+
 ## Troubleshooting
 
 **`RSA public key is not available client side`** — MySQL 8 authenticates with
@@ -183,5 +192,5 @@ full handshake. Safe over loopback; use TLS for a remote database.
 - [x] **Phase 2** — authentication, JWT, role guards, protected routes
 - [x] **Phase 3** — normal user: store list, search, submit/modify rating
 - [x] **Phase 4** — admin: dashboard, user and store listings with filter + sort
-- [ ] **Phase 5** — store owner: dashboard with raters and average rating
+- [x] **Phase 5** — store owner: dashboard with raters and average rating
 - [ ] **Phase 6** — polish and documentation (password update shipped in Phase 2)

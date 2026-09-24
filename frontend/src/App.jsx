@@ -10,7 +10,7 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminStoresPage from './pages/admin/AdminStoresPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
 import AdminUserDetailPage from './pages/admin/AdminUserDetailPage'
-import ComingSoon from './pages/ComingSoon'
+import OwnerDashboardPage from './pages/OwnerDashboardPage'
 
 /** Sends "/" to the right place for whoever is signed in. */
 function LandingRedirect() {
@@ -57,14 +57,7 @@ export default function App() {
           path="/owner"
           element={
             <ProtectedRoute roles={['OWNER']}>
-              <ComingSoon
-                title="Store owner dashboard"
-                phase="Phase 5"
-                features={[
-                  'Average rating for your store',
-                  'List of users who rated your store',
-                ]}
-              />
+              <OwnerDashboardPage />
             </ProtectedRoute>
           }
         />

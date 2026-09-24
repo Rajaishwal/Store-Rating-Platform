@@ -5,6 +5,7 @@ import AppLayout from './components/AppLayout'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
+import StoresPage from './pages/StoresPage'
 import ComingSoon from './pages/ComingSoon'
 
 /** Sends "/" to the right place for whoever is signed in. */
@@ -53,16 +54,7 @@ export default function App() {
           path="/stores"
           element={
             <ProtectedRoute roles={['USER']}>
-              <ComingSoon
-                title="Stores"
-                phase="Phase 3"
-                features={[
-                  'All registered stores with their overall rating',
-                  'Search by store name and address',
-                  'Submit a rating from 1 to 5',
-                  'See and modify the rating you already gave',
-                ]}
-              />
+              <StoresPage />
             </ProtectedRoute>
           }
         />

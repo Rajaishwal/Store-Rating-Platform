@@ -184,34 +184,28 @@ export default function AdminStoresPage() {
 
       <Pagination pagination={pagination} onPage={setPage} noun="stores" />
 
-      <AddStoreModal
-        open={modalOpen}
-        owners={availableOwners}
-        onClose={() => setModalOpen(false)}
-        onCreated={(store) => {
-          setModalOpen(false)
-          setCreated(`"${store.name}" was registered.`)
-          loadStores()
-        }}
-      />
+      {/* Mounted only while open, so the form starts blank by construction
+          rather than being reset by an effect after the fact. */}
+      {modalOpen && (
+        <AddStoreModal
+          owners={availableOwners}
+          onClose={() => setModalOpen(false)}
+          onCreated={(store) => {
+            setModalOpen(false)
+            setCreated(`"${store.name}" was registered.`)
+            loadStores()
+          }}
+        />
+      )}
     </div>
   )
 }
 
-function AddStoreModal({ open, owners, onClose, onCreated }) {
+function AddStoreModal({ owners, onClose, onCreated }) {
   const [values, setValues] = useState(EMPTY_STORE)
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-
-  // Start from a blank form each time it opens.
-  useEffect(() => {
-    if (open) {
-      setValues(EMPTY_STORE)
-      setErrors({})
-      setFormError('')
-    }
-  }, [open])
 
   const update = (field) => (event) => {
     setValues((v) => ({ ...v, [field]: event.target.value }))
@@ -252,7 +246,7 @@ function AddStoreModal({ open, owners, onClose, onCreated }) {
 
   return (
     <Modal
-      open={open}
+      open
       title="Add store"
       description="An owner can be assigned now or left unassigned."
       onClose={onClose}

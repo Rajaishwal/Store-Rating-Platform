@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
-import { useAuth, HOME_ROUTE } from './context/AuthContext'
+import { useAuth } from './context/auth-context'
+import { HOME_ROUTE } from './lib/routes'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppLayout from './components/AppLayout'
 import LoginPage from './pages/LoginPage'
@@ -11,6 +12,7 @@ import AdminStoresPage from './pages/admin/AdminStoresPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
 import AdminUserDetailPage from './pages/admin/AdminUserDetailPage'
 import OwnerDashboardPage from './pages/OwnerDashboardPage'
+import NotFoundPage from './pages/NotFoundPage'
 
 /** Sends "/" to the right place for whoever is signed in. */
 function LandingRedirect() {
@@ -64,7 +66,7 @@ export default function App() {
       </Route>
 
       <Route path="/" element={<LandingRedirect />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

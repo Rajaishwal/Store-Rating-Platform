@@ -1,14 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, tokenStore } from '../api/client'
-
-const AuthContext = createContext(null)
-
-/** Where each role lands after signing in. */
-export const HOME_ROUTE = {
-  ADMIN: '/admin',
-  USER: '/stores',
-  OWNER: '/owner',
-}
+import { AuthContext } from './auth-context'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -66,10 +58,4 @@ export function AuthProvider({ children }) {
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error('useAuth must be used inside an AuthProvider')
-  return context
 }

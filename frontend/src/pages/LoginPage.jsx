@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth, HOME_ROUTE } from '../context/AuthContext'
+import { useAuth } from '../context/auth-context'
+import { HOME_ROUTE } from '../lib/routes'
 import { errorMessage } from '../api/client'
 import { Alert, Button, Card, Field, Input } from '../components/ui'
 

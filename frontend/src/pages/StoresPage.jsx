@@ -1,33 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, errorMessage } from '../api/client'
 import { useDebounced } from '../hooks/useDebounced'
+import DataTable, { Pagination } from '../components/DataTable'
 import { StarDisplay, StarRating } from '../components/StarRating'
-import { Alert, Button, Card, Input } from '../components/ui'
+import { Alert, Input } from '../components/ui'
 
 const PAGE_SIZE = 10
-
-/** Column header that toggles between ascending and descending. */
-function SortableHeader({ column, label, sort, onSort, className = '' }) {
-  const active = sort.by === column
-  const arrow = active ? (sort.order === 'asc' ? '↑' : '↓') : '↕'
-
-  return (
-    <th scope="col" className={`px-4 py-3 text-left ${className}`}>
-      <button
-        type="button"
-        onClick={() => onSort(column)}
-        aria-sort={active ? (sort.order === 'asc' ? 'ascending' : 'descending') : 'none'}
-        className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide transition
-          ${active ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
-      >
-        {label}
-        <span aria-hidden="true" className={active ? 'text-slate-900' : 'text-slate-400'}>
-          {arrow}
-        </span>
-      </button>
-    </th>
-  )
-}
 
 export default function StoresPage() {
   const [search, setSearch] = useState('')
@@ -112,7 +90,42 @@ export default function StoresPage() {
     }
   }
 
-  const totalPages = pagination?.totalPages ?? 1
+  const columns = [
+    {
+      key: 'name',
+      label: 'Store',
+      sortable: true,
+      render: (store) => (
+        <>
+          <p className="font-medium">{store.name}</p>
+          <p className="text-xs text-slate-500">{store.email}</p>
+        </>
+      ),
+    },
+    {
+      key: 'address',
+      label: 'Address',
+      sortable: true,
+      className: 'max-w-xs text-slate-600',
+    },
+    {
+      key: 'rating',
+      label: 'Overall rating',
+      sortable: true,
+      render: (store) => <StarDisplay value={store.overallRating} count={store.ratingCount} />,
+    },
+    {
+      key: 'myRating',
+      label: 'Your rating',
+      render: (store) => (
+        <StarRating
+          value={store.myRating}
+          disabled={savingId === store.id}
+          onRate={(value) => handleRate(store.id, value)}
+        />
+      ),
+    },
+  ]
 
   return (
     <div>
@@ -140,93 +153,24 @@ export default function StoresPage() {
         </div>
       )}
 
-      <Card className="mt-6 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] border-collapse">
-            <thead className="border-b border-slate-200 bg-slate-50">
-              <tr>
-                <SortableHeader column="name" label="Store" sort={sort} onSort={handleSort} />
-                <SortableHeader column="address" label="Address" sort={sort} onSort={handleSort} />
-                <SortableHeader
-                  column="rating"
-                  label="Overall rating"
-                  sort={sort}
-                  onSort={handleSort}
-                />
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Your rating
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loading && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">
-                    Loading stores...
-                  </td>
-                </tr>
-              )}
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          rows={stores}
+          rowKey={(store) => store.id}
+          sort={sort}
+          onSort={handleSort}
+          loading={loading}
+          minWidth={720}
+          emptyMessage={
+            debouncedSearch
+              ? `No stores match "${debouncedSearch}".`
+              : 'No stores have been registered yet.'
+          }
+        />
+      </div>
 
-              {!loading && stores.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">
-                    {debouncedSearch
-                      ? `No stores match "${debouncedSearch}".`
-                      : 'No stores have been registered yet.'}
-                  </td>
-                </tr>
-              )}
-
-              {!loading &&
-                stores.map((store) => (
-                  <tr key={store.id} className="hover:bg-slate-50/60">
-                    <td className="px-4 py-3">
-                      <p className="font-medium">{store.name}</p>
-                      <p className="text-xs text-slate-500">{store.email}</p>
-                    </td>
-                    <td className="max-w-xs px-4 py-3 text-sm text-slate-600">{store.address}</td>
-                    <td className="px-4 py-3">
-                      <StarDisplay value={store.overallRating} count={store.ratingCount} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <StarRating
-                        value={store.myRating}
-                        disabled={savingId === store.id}
-                        onRate={(value) => handleRate(store.id, value)}
-                      />
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {pagination && totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-slate-600">
-            Page {pagination.page} of {totalPages} &middot; {pagination.total} stores
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1.5"
-            >
-              Previous
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1.5"
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+      <Pagination pagination={pagination} onPage={setPage} noun="stores" />
     </div>
   )
 }

@@ -63,8 +63,17 @@ export default function DataTable({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100">
-            {loading && (
+          {/* While refetching, existing rows stay on screen and dim rather than
+              being replaced by a spinner. Filtering is debounced but still
+              refetches as the user types, and blanking the table on each
+              keystroke makes the page flicker and lose the reader's place. */}
+          <tbody
+            aria-busy={loading}
+            className={`divide-y divide-slate-100 transition-opacity ${
+              loading && rows.length > 0 ? 'opacity-50' : ''
+            }`}
+          >
+            {loading && rows.length === 0 && (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-10 text-center text-sm text-slate-500">
                   Loading...
@@ -80,20 +89,19 @@ export default function DataTable({
               </tr>
             )}
 
-            {!loading &&
-              rows.map((row) => (
-                <tr
-                  key={rowKey(row)}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  className={onRowClick ? 'cursor-pointer hover:bg-slate-50' : 'hover:bg-slate-50/60'}
-                >
-                  {columns.map((column) => (
-                    <td key={column.key} className={`px-4 py-3 text-sm ${column.className ?? ''}`}>
-                      {column.render ? column.render(row) : row[column.key]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
+            {rows.map((row) => (
+              <tr
+                key={rowKey(row)}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                className={onRowClick ? 'cursor-pointer hover:bg-slate-50' : 'hover:bg-slate-50/60'}
+              >
+                {columns.map((column) => (
+                  <td key={column.key} className={`px-4 py-3 text-sm ${column.className ?? ''}`}>
+                    {column.render ? column.render(row) : row[column.key]}
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

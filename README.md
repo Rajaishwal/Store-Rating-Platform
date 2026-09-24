@@ -30,11 +30,12 @@ backend/
 frontend/
   src/
     pages/                 one component per screen
-    components/            reusable UI (layout, tables, rating widget)
-    context/               auth state
+    components/            reusable UI (layout, DataTable, rating widget)
+    context/               auth state; the context and its hook live apart
+                           from the provider so fast refresh keeps working
     hooks/                 shared React hooks
     api/                   axios client and error normalisation
-    lib/validation.js      client-side mirror of the backend rules
+    lib/                   validation mirror, route map, role labels
 ```
 
 ## Getting started
@@ -133,6 +134,17 @@ Run from `backend/`:
 | `npm run test:admin`  | 51 administrator checks                           |
 | `npm run test:owner`  | 23 store owner checks                             |
 
+## Tests
+
+125 end-to-end checks run against a real database, not mocks. Each suite starts
+its own instance of the app on its own port, creates any fixtures it needs, and
+removes them afterwards, so the suites are re-runnable and order-independent.
+
+```bash
+cd backend
+npm run test:auth && npm run test:stores && npm run test:admin && npm run test:owner
+```
+
 ## Validation rules
 
 Defined once in `backend/src/validators/fields.js` and mirrored in
@@ -193,4 +205,4 @@ full handshake. Safe over loopback; use TLS for a remote database.
 - [x] **Phase 3** — normal user: store list, search, submit/modify rating
 - [x] **Phase 4** — admin: dashboard, user and store listings with filter + sort
 - [x] **Phase 5** — store owner: dashboard with raters and average rating
-- [ ] **Phase 6** — polish and documentation (password update shipped in Phase 2)
+- [x] **Phase 6** — polish: 404 page, shared table, lint pass, documentation

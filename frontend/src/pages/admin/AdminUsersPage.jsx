@@ -4,6 +4,8 @@ import { api, errorMessage, fieldErrors } from '../../api/client'
 import { useDebounced } from '../../hooks/useDebounced'
 import DataTable, { Pagination } from '../../components/DataTable'
 import Modal from '../../components/Modal'
+import RoleBadge from '../../components/RoleBadge'
+import { ROLE_LABEL } from '../../lib/roles'
 import { Alert, Button, Card, Field, Input } from '../../components/ui'
 import {
   RULES,
@@ -17,26 +19,6 @@ import {
 const PAGE_SIZE = 10
 const EMPTY_FILTERS = { name: '', email: '', address: '', role: '' }
 const EMPTY_USER = { name: '', email: '', address: '', password: '', role: 'USER' }
-
-export const ROLE_LABEL = {
-  ADMIN: 'Administrator',
-  USER: 'Normal user',
-  OWNER: 'Store owner',
-}
-
-const ROLE_BADGE = {
-  ADMIN: 'bg-violet-100 text-violet-800',
-  USER: 'bg-sky-100 text-sky-800',
-  OWNER: 'bg-emerald-100 text-emerald-800',
-}
-
-export function RoleBadge({ role }) {
-  return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${ROLE_BADGE[role]}`}>
-      {ROLE_LABEL[role]}
-    </span>
-  )
-}
 
 export default function AdminUsersPage() {
   const navigate = useNavigate()
@@ -201,32 +183,27 @@ export default function AdminUsersPage() {
 
       <Pagination pagination={pagination} onPage={setPage} noun="users" />
 
-      <AddUserModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onCreated={(user) => {
-          setModalOpen(false)
-          setCreated(`${user.name} was created as ${ROLE_LABEL[user.role].toLowerCase()}.`)
-          loadUsers()
-        }}
-      />
+      {/* Mounted only while open, so the form starts blank by construction
+          rather than being reset by an effect after the fact. */}
+      {modalOpen && (
+        <AddUserModal
+          onClose={() => setModalOpen(false)}
+          onCreated={(user) => {
+            setModalOpen(false)
+            setCreated(`${user.name} was created as ${ROLE_LABEL[user.role].toLowerCase()}.`)
+            loadUsers()
+          }}
+        />
+      )}
     </div>
   )
 }
 
-function AddUserModal({ open, onClose, onCreated }) {
+function AddUserModal({ onClose, onCreated }) {
   const [values, setValues] = useState(EMPTY_USER)
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    if (open) {
-      setValues(EMPTY_USER)
-      setErrors({})
-      setFormError('')
-    }
-  }, [open])
 
   const update = (field) => (event) => {
     setValues((v) => ({ ...v, [field]: event.target.value }))
@@ -265,7 +242,7 @@ function AddUserModal({ open, onClose, onCreated }) {
 
   return (
     <Modal
-      open={open}
+      open
       title="Add user"
       description="Administrators, normal users and store owners are all created here."
       onClose={onClose}

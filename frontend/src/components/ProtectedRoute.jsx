@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth, HOME_ROUTE } from '../context/AuthContext'
+import { useAuth } from '../context/auth-context'
+import { HOME_ROUTE } from '../lib/routes'
 import { FullPageSpinner } from './ui'
 
 /**

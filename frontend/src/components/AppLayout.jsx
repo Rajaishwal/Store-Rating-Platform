@@ -1,12 +1,8 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { useAuth, HOME_ROUTE } from '../context/AuthContext'
+import { useAuth } from '../context/auth-context'
+import { HOME_ROUTE } from '../lib/routes'
+import { ROLE_LABEL } from '../lib/roles'
 import { Button } from './ui'
-
-const ROLE_LABEL = {
-  ADMIN: 'Administrator',
-  USER: 'Normal user',
-  OWNER: 'Store owner',
-}
 
 /** Links each role sees in the header. */
 const NAV_BY_ROLE = {

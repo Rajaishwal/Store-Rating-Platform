@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { api, errorMessage } from '../../api/client'
 import { StarDisplay } from '../../components/StarRating'
 import { Alert, Card } from '../../components/ui'
-import { RoleBadge } from './AdminUsersPage'
+import RoleBadge from '../../components/RoleBadge'
 
 function DetailRow({ label, children }) {
   return (

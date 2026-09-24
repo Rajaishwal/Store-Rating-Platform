@@ -1,0 +1,80 @@
+// Store Rating Platform — database schema.
+//
+// Three tables carry the entire domain: every person is a `users` row (the role
+// column decides what they may do), stores may be owned by one of those users,
+// and a rating is a single row joining a user to a store.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// Admin manages the platform, User rates stores, Owner reads their own store's
+/// ratings. One login endpoint serves all three; this column decides the rest.
+enum Role {
+  ADMIN
+  USER
+  OWNER
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(60)
+  email        String   @unique @db.VarChar(255)
+  /// bcrypt digest — the plaintext password is never stored or logged.
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  address      String   @db.VarChar(400)
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  ratings    Rating[]
+  /// Set only when role is OWNER. Optional one-to-one: a user owns at most one store.
+  ownedStore Store?   @relation("StoreOwner")
+
+  @@index([role])
+  @@index([name])
+  @@map("users")
+}
+
+model Store {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(60)
+  email     String   @unique @db.VarChar(255)
+  address   String   @db.VarChar(400)
+  /// Nullable so an admin can register a store before its owner has an account.
+  /// Unique so one user cannot own two stores.
+  ownerId   Int?     @unique @map("owner_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  owner   User?    @relation("StoreOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  ratings Rating[]
+
+  @@index([name])
+  @@map("stores")
+}
+
+model Rating {
+  id      Int @id @default(autoincrement())
+  /// 1–5. Range is enforced by a CHECK constraint added in the migration.
+  value   Int @db.TinyInt
+  userId  Int @map("user_id")
+  storeId Int @map("store_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  /// The heart of the design: one rating per user per store. This turns
+  /// "submit a rating" and "modify my rating" into a single upsert.
+  @@unique([userId, storeId])
+  @@index([storeId])
+  @@map("ratings")
+}

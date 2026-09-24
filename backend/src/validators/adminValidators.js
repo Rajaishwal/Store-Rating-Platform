@@ -19,6 +19,7 @@ export const ADMIN_STORE_SORT_COLUMNS = {
   name: 's.name',
   email: 's.email',
   address: 's.address',
+  owner: 'owner.name',
   rating: 'avgRating',
 };
 

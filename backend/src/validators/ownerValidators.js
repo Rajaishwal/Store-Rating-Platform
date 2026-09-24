@@ -10,6 +10,7 @@ import { z } from 'zod';
 export const RATER_SORT_ORDERS = {
   name: (order) => ({ user: { name: order } }),
   email: (order) => ({ user: { email: order } }),
+  address: (order) => ({ user: { address: order } }),
   rating: (order) => ({ value: order }),
   ratedAt: (order) => ({ updatedAt: order }),
 };

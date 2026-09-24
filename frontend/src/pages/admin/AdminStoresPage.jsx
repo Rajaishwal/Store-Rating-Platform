@@ -107,6 +107,7 @@ export default function AdminStoresPage() {
     {
       key: 'owner',
       label: 'Owner',
+      sortable: true,
       render: (store) =>
         store.owner ? (
           store.owner.name

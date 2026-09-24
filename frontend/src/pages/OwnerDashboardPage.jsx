@@ -71,6 +71,7 @@ export default function OwnerDashboardPage() {
     {
       key: 'address',
       label: 'Address',
+      sortable: true,
       className: 'text-slate-600',
       render: (row) => row.user.address,
     },

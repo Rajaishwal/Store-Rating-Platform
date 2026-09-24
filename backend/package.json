@@ -12,7 +12,8 @@
     "db:seed": "node prisma/seed.js",
     "db:reset": "prisma migrate reset --force && node prisma/seed.js",
     "test:auth": "node tests/auth.smoke.mjs",
-    "test:stores": "node tests/stores.smoke.mjs"
+    "test:stores": "node tests/stores.smoke.mjs",
+    "test:admin": "node tests/admin.smoke.mjs"
   },
   "keywords": [],
   "author": "",

@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { useAuth, HOME_ROUTE } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppLayout from './components/AppLayout'
@@ -6,6 +6,10 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import StoresPage from './pages/StoresPage'
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'
+import AdminStoresPage from './pages/admin/AdminStoresPage'
+import AdminUsersPage from './pages/admin/AdminUsersPage'
+import AdminUserDetailPage from './pages/admin/AdminUserDetailPage'
 import ComingSoon from './pages/ComingSoon'
 
 /** Sends "/" to the right place for whoever is signed in. */
@@ -31,24 +35,14 @@ export default function App() {
       >
         <Route path="/account/password" element={<ChangePasswordPage />} />
 
-        <Route
-          path="/admin/*"
-          element={
-            <ProtectedRoute roles={['ADMIN']}>
-              <ComingSoon
-                title="Administrator dashboard"
-                phase="Phase 4"
-                features={[
-                  'Totals for users, stores, and submitted ratings',
-                  'Store listing with name, email, address, and rating',
-                  'User listing with name, email, address, and role',
-                  'Filtering and sorting on every column',
-                  'Create stores, normal users, and admin users',
-                ]}
-              />
-            </ProtectedRoute>
-          }
-        />
+        {/* The role guard wraps the whole admin area once, so a screen added
+            underneath it cannot ship unprotected by accident. */}
+        <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><Outlet /></ProtectedRoute>}>
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="stores" element={<AdminStoresPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="users/:userId" element={<AdminUserDetailPage />} />
+        </Route>
 
         <Route
           path="/stores"

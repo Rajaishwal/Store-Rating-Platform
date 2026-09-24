@@ -16,6 +16,15 @@ function connectionOptions(url) {
     password: decodeURIComponent(parsed.password),
     database: parsed.pathname.replace(/^\//, ''),
     connectionLimit: 10,
+    // MySQL 8 authenticates with caching_sha2_password. The server caches a
+    // successful login, but after a restart that cache is empty and the client
+    // must complete the full handshake, which needs the server's RSA public
+    // key. Without this the driver fails with "RSA public key is not available
+    // client side" — and only after a restart, which makes it look intermittent.
+    //
+    // Safe over a loopback connection. For a remote database, prefer TLS
+    // (ssl: true) so the key exchange cannot be intercepted.
+    allowPublicKeyRetrieval: true,
   };
 }
 

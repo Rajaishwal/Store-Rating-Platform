@@ -14,7 +14,8 @@
     "test:auth": "node tests/auth.smoke.mjs",
     "test:stores": "node tests/stores.smoke.mjs",
     "test:admin": "node tests/admin.smoke.mjs",
-    "test:owner": "node tests/owner.smoke.mjs"
+    "test:owner": "node tests/owner.smoke.mjs",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
